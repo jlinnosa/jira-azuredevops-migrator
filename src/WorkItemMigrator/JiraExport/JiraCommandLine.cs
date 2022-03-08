@@ -39,8 +39,7 @@ namespace JiraExport
             commandLineApplication.FullName = "Work item migration tool that assists with moving Jira items to Azure DevOps or TFS.";
             commandLineApplication.Name = "jira-export";
 
-            CommandOption userOption = commandLineApplication.Option("-u <username>", "Username for authentication", CommandOptionType.SingleValue);
-            CommandOption passwordOption = commandLineApplication.Option("-p <password>", "Password for authentication", CommandOptionType.SingleValue);
+            CommandOption sessionOption = commandLineApplication.Option("-j <session>", "Session for authentication", CommandOptionType.SingleValue);
             CommandOption urlOption = commandLineApplication.Option("--url <accounturl>", "Url for the account", CommandOptionType.SingleValue);
             CommandOption configOption = commandLineApplication.Option("--config <configurationfilename>", "Export the work items based on this configuration file", CommandOptionType.SingleValue);
             CommandOption forceOption = commandLineApplication.Option("--force", "Forces execution from start (instead of continuing from previous run)", CommandOptionType.NoValue);
@@ -52,7 +51,7 @@ namespace JiraExport
 
                 if (configOption.HasValue())
                 {
-                    ExecuteMigration(userOption, passwordOption, urlOption, configOption, forceFresh, continueOnCriticalOption);
+                    ExecuteMigration(sessionOption, urlOption, configOption, forceFresh, continueOnCriticalOption);
                 }
                 else
                 {
@@ -63,7 +62,7 @@ namespace JiraExport
             });
         }
 
-        private void ExecuteMigration(CommandOption user, CommandOption password, CommandOption url, CommandOption configFile, bool forceFresh, CommandOption continueOnCritical)
+        private void ExecuteMigration(CommandOption session, CommandOption url, CommandOption configFile, bool forceFresh, CommandOption continueOnCritical)
         {
             var itemsCount = 0;
             var exportedItemsCount = 0;
@@ -84,7 +83,7 @@ namespace JiraExport
 
                 var downloadOptions = (DownloadOptions)config.DownloadOptions;
 
-                var jiraSettings = new JiraSettings(user.Value(), password.Value(), url.Value(), config.SourceProject)
+                var jiraSettings = new JiraSettings(session.Value(), url.Value(), config.SourceProject)
                 {
                     BatchSize = config.BatchSize,
                     UserMappingFile = config.UserMappingFile != null ? Path.Combine(migrationWorkspace, config.UserMappingFile) : string.Empty,
@@ -174,7 +173,7 @@ namespace JiraExport
                     { "Machine      :", machine },
                     { "System       :", osVersion },
                     { "Jira url     :", jiraProvider.Settings.Url },
-                    { "Jira user    :", jiraProvider.Settings.UserID },
+                    { "Jira session :", jiraProvider.Settings.Session },
                     { "Jira version :", jiraVersion.Version },
                     { "Jira type    :", jiraVersion.DeploymentType }
                     },

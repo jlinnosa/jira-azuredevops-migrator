@@ -51,7 +51,7 @@ namespace JiraExport
 
         public Task DownloadWithAuthenticationAsync(string url, string fileName)
         {
-            if (String.IsNullOrEmpty(_jira.Settings.UserID) || String.IsNullOrEmpty(_jira.Settings.Pass))
+            if (String.IsNullOrEmpty(_jira.Settings.Session))
             {
                 throw new InvalidOperationException("Unable to download file, user and/or password are missing. You can specify credentials in the configuration file");
             }
@@ -59,10 +59,8 @@ namespace JiraExport
             _webClient.CancelAsync();
 
             var completionSource = new TaskCompletionSource<object>();
-            string encodedUserNameAndPassword = Convert.ToBase64String(Encoding.UTF8.GetBytes(_jira.Settings.UserID + ":" + _jira.Settings.Pass));
 
-            _webClient.Headers.Remove(HttpRequestHeader.Authorization);
-            _webClient.Headers.Add(HttpRequestHeader.Authorization, "Basic " + encodedUserNameAndPassword);
+            _webClient.Headers.Add("Cookie", $"JSESSIONID={_jira.Settings.Session}");
             _webClient.DownloadFileAsync(new Uri(url), fileName, completionSource);
 
             return completionSource.Task;

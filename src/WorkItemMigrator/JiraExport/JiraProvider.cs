@@ -70,7 +70,8 @@ namespace JiraExport
             {
                 Logger.Log(LogLevel.Info, "Connecting to Jira...");
 
-                jira = Jira.CreateRestClient(jiraSettings.Url, jiraSettings.UserID, jiraSettings.Pass);
+                JiraRestClientSettings settings = new JiraRestClientSettings();
+                jira = Jira.CreateRestClient(new JiraSessionRestClient(jiraSettings.Url, jiraSettings.Session));
                 jira.RestClient.RestSharpClient.AddDefaultHeader("X-Atlassian-Token", "no-check");
                 if (jiraSettings.UsingJiraCloud)
                     jira.RestClient.Settings.EnableUserPrivacyMode = true;
