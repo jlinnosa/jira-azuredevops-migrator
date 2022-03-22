@@ -135,7 +135,7 @@ namespace JiraExport
                 var rc = renderedFields.SelectToken($"$.[{i}].body");
                 return new JiraRevision(jiraItem)
                 {
-                    Author = c.AuthorUser.Username ?? GetAuthorIdentityOrDefault(c.AuthorUser.AccountId),
+                    Author = c.AuthorUser == null ? "unknown" : c.AuthorUser.Username ?? GetAuthorIdentityOrDefault(c.AuthorUser.AccountId),
                     Time = c.CreatedDate.Value,
                     Fields = new Dictionary<string, object>() { { "comment", c.Body }, { "comment$Rendered", rc.Value<string>() } },
                     AttachmentActions = new List<RevisionAction<JiraAttachment>>(),
